@@ -113,6 +113,14 @@ Goodbye...
 
 ---
 
+## 📹 Demo Video
+
+[![Watch the demo](https://img.youtube.com/vi/WD693Mx4NYQ/0.jpg)](https://www.youtube.com/watch?v=WD693Mx4NYQ)
+
+[watch on YouTube](https://www.youtube.com/watch?v=WD693Mx4NYQ)
+
+---
+
 ## 🤝 Contributors
 👨‍💻 **Yuval Kogan**  
 📧 [LinkedIn](https://www.linkedin.com/in/yuval-kogan) | [GitHub](https://github.com/KoganTheDev)
