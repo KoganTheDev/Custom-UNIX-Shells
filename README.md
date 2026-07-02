@@ -1,148 +1,200 @@
-# 🚀 Custom UNIX Shells
+# Custom UNIX Shells
 
-![Linux](https://img.shields.io/badge/Linux-OS-blue?style=flat-square) ![C](https://img.shields.io/badge/C-Language-blue?style=flat-square) ![Shell](https://img.shields.io/badge/Shell-Terminal-green?style=flat-square)
+[![Language](https://img.shields.io/badge/language-C-00599C?style=flat-square&logo=c&logoColor=white)](https://en.wikipedia.org/wiki/C_(programming_language))
+[![Platform](https://img.shields.io/badge/platform-Linux-FCC624?style=flat-square&logo=linux&logoColor=black)](https://www.kernel.org/)
+[![Build](https://img.shields.io/badge/build-Makefile-6A4C93?style=flat-square&logo=gnu&logoColor=white)](src/Makefile)
+[![License: MIT](https://img.shields.io/badge/license-MIT-informational?style=flat-square)](LICENSE)
 
-## 📌 Overview
-This project is a **custom shell environment** implemented in **C on UNIX (Ubuntu)**, utilizing **Linux system calls** instead of `system()`. The shell supports **multiple specialized sub-shells** for handling standard commands, mathematical operations, logic-based operations, and string manipulations.
+A UNIX shell implemented from scratch in C, built directly on Linux system calls (`fork`, `exec`, `pipe`, `dup2`, `signal`) with **no `system()` call anywhere in the codebase**. It started as a course assignment and has since grown into a small but real shell: four specialized sub-shells, pipelines with I/O redirection, POSIX-style job control (process groups, terminal control, `Ctrl+C`/`Ctrl+Z`), and a cross-process command counter backed by shared memory.
 
-## 🎯 Features
-✅ Fully functional command-line environment  
-✅ Supports multiple specialized shells  
-✅ Uses **fork()**, **exec()**, and **file handling** for execution  
-✅ Saves command history for each shell  
-✅ Graceful error handling and validation  
-✅ Modular and structured code design  
-✅ Pipes (`|`) and I/O redirection (`<`, `>`, `>>`) between arbitrary commands  
-✅ Job control: background jobs (`&`), `jobs`/`fg`/`bg`, Ctrl+C/Ctrl+Z handled per-job instead of killing the shell  
-✅ Cross-process command counter via POSIX shared memory + a named semaphore (`Stats` command)  
+## Table of Contents
 
----
+- [Features](#features)
+- [Architecture](#architecture)
+- [Project Structure](#project-structure)
+- [Getting Started](#getting-started)
+- [Usage](#usage)
+- [System Calls Used](#system-calls-used)
+- [Known Limitations](#known-limitations)
+- [License](#license)
 
-## 📂 Project Structure
+## Features
+
+**Process management**
+- Any external Linux command, executed via `fork()`/`execvp()` — no `system()`
+- Three specialized sub-shells (`Math`, `Logic`, `String`) launched as child processes, sharing a single command counter with the parent
+
+**Pipelines & redirection**
+- Multi-stage pipelines: `ls | grep .c | wc -l` (up to 4 stages)
+- Input/output redirection: `sort < names.txt > sorted.txt`, `echo hi >> log.txt`
+
+**Job control**
+- Background execution: `sleep 30 &` → `[1] 12345`
+- `jobs`, `fg [job_id]`, `bg [job_id]` builtins
+- Real process-group-based signal handling: `Ctrl+C` kills the foreground job, `Ctrl+Z` stops it — neither kills the shell itself
+
+**Inter-process communication**
+- A command counter (`Stats`) shared across every shell process in the session via POSIX shared memory (`shm_open`/`mmap`), synchronized with a named semaphore
+
+**Per-shell command history**
+- Every sub-shell persists its own history to disk with raw `open()`/`write()` syscalls, viewable via its `History` command
+
+## Architecture
+
+The dispatch loop is documented as a UML Activity Diagram in [`docs/standard-shell-activity-diagram.drawio`](docs/standard-shell-activity-diagram.drawio) (open with [draw.io](https://app.diagrams.net/) / the VS Code draw.io extension) — it traces the full control flow from startup through the read-eval-print loop to each builtin dispatch path.
+
+At a source level, the project is split into focused modules rather than one large file:
+
+| Module | Responsibility |
+|---|---|
+| `Standard_shell.c` | REPL loop and builtin dispatch (`exit`, `Math`, `Logic`, `String`, `jobs`, `fg`, `bg`, `Stats`) |
+| `jobs.c` / `jobs.h` | Job control: process groups, terminal control, `SIGCHLD` reaping, `jobs`/`fg`/`bg` |
+| `pipeline.c` / `pipeline.h` | Pipe/redirection/background parsing and execution for external commands |
+| `common/subshell_common.c` / `.h` | Table-driven REPL engine shared by `Math`/`Logic`/`String` |
+| `common/ipc_stats.c` / `.h` | The shared-memory command counter |
+
+Each sub-shell (`Math`, `Logic`, `String`) declares only its own command table — name, executable path, required argument count, usage message — and hands it to the shared REPL engine, instead of duplicating the read/parse/dispatch/log loop three times.
+
+## Project Structure
+
 ```
-📁 src
-│-- 📜 Standard_shell.c    # Main shell: REPL + builtin dispatch (exit/Math/Logic/String/jobs/fg/bg/Stats)
-│-- 📜 jobs.c / jobs.h     # Job control: process groups, terminal control, SIGCHLD reaping, jobs/fg/bg
-│-- 📜 pipeline.c / pipeline.h  # Pipe/redirection/background execution for regular commands
-│-- 📜 shell_config.h      # Shared compile-time limits (input size, max args, max pipeline stages)
-│-- 📁 common/             # Code shared across binaries
-│   │-- 📜 subshell_common.c/.h  # Table-driven REPL engine used by Math/Logic/String
-│   │-- 📜 ipc_stats.c/.h        # Shared-memory command counter (POSIX shm + semaphore)
-│-- 📁 functions/          # One executable per builtin/sub-shell command
-│-- 📜 Makefile            # Build rules for all ~18 binaries
-│-- 📜 Sys_shell.sh        # Thin wrapper: `make && ./Standard_shell`
-│-- 📜 README.md           # Project documentation
+src/
+├── Standard_shell.c          # Entry point: REPL loop + builtin dispatch
+├── jobs.c / jobs.h            # Job control subsystem
+├── pipeline.c / pipeline.h    # Pipeline execution
+├── shell_config.h             # Shared compile-time limits
+├── common/
+│   ├── subshell_common.c/.h   # Table-driven REPL engine (Math/Logic/String)
+│   └── ipc_stats.c/.h         # Shared-memory command counter
+├── functions/
+│   ├── Standard_Shell_functions/  # exit, Goodbye, Math, Logic, String
+│   ├── Math_Shell_functions/      # Sqrt, Power, Solve, History
+│   ├── Logic_Shell_functions/     # DectoBin, DectoHex, Highbit, History
+│   └── String_Shell_functions/    # PrintFile, Find, Replace, History
+├── Makefile                   # Build rules for all binaries
+└── Sys_shell.sh                # Thin wrapper: `make && ./Standard_shell`
+docs/
+└── standard-shell-activity-diagram.drawio   # UML activity diagram of the dispatch loop
 ```
 
----
+## Getting Started
 
-## 🔧 Installation & Execution
-### 1️⃣ Clone the repository
+### Prerequisites
+
+- A Linux environment (or a Linux container — this codebase relies on POSIX/glibc extensions such as `killpg()`, `tcsetpgrp()`, and `shm_open()` that aren't available on Windows)
+- `gcc` and `make`
+
+### Build
+
 ```sh
-git clone <repository_url>
+git clone https://github.com/KoganTheDev/Custom-UNIX-Shells.git
 cd Custom-UNIX-Shells/src
-```
-### 2️⃣ Compile the project
-```sh
-make        # builds every binary
-make run    # builds, then launches Standard_shell
-make clean  # removes all built binaries and the runtime Commands/ dir
-```
-### 3️⃣ Start using the shell
-Once executed, the shell environment is ready. You can navigate through different shells as follows:
-
-```sh
-StandShell> Math      # Switch to MathShell
-MathShell> Sqrt 100   # Calculate square root
-MathShell> Cls        # Return to StandShell
-StandShell> exit      # Exit and delete Commands directory
+make            # builds every binary
 ```
 
----
+### Run
 
-## 🖥️ Available Shells & Commands
-### 1️⃣ **StandardShell (`StandShell>`)**
-- Execute **any valid Linux command** (up to 6 parameters)
-- Pipelines: `ls | grep .c | wc -l` (up to 4 stages)
-- Redirection: `sort < names.txt > sorted.txt`, `echo hi >> log.txt`
-- Background jobs: `sleep 30 &` → `[1] 12345`
-- Job control: `jobs`, `fg [job_id]`, `bg [job_id]` - Ctrl+C kills, Ctrl+Z stops the foreground job without killing the shell
-- `Stats` - total commands executed across every shell in this session (Standard + Math + Logic + String), tracked via shared memory
-- Example: `ls -l`, `mkdir testDir`, `grep -c word file.txt`
-- Exit: `exit` (Deletes `Commands/` directory)
-
-### 2️⃣ **MathShell (`MathShell>`)**
-| Command       | Description |
-|--------------|-------------|
-| `Sqrt n`     | Compute square root of `n` |
-| `Power x y`  | Compute `x^y` |
-| `Solve a b c` | Solve quadratic equation `ax² + bx + c = 0` |
-| `History`    | Show executed commands |
-| `Cls`        | Return to `StandShell>` |
-
-### 3️⃣ **LogicShell (`LogicShell>`)**
-| Command       | Description |
-|--------------|-------------|
-| `Highbit n`  | Count 1 bits in binary representation |
-| `DectoBin n` | Convert decimal to binary |
-| `DectoHex n` | Convert decimal to hexadecimal |
-| `History`    | Show executed commands |
-| `Cls`        | Return to `StandShell>` |
-
-### 4️⃣ **StringShell (`StringShell>`)**
-| Command                 | Description |
-|-------------------------|-------------|
-| `PrintFile filename`    | Display file contents |
-| `Find filename string`  | Search for a string in the file (`WIN` if found) |
-| `Replace str word pos`  | Insert `word` at `pos` in `str` |
-| `History`               | Show executed commands |
-| `Cls`                   | Return to `StandShell>` |
-
----
-
-## 📜 Example Execution
 ```sh
-./Sys_shell.sh
+make run        # builds (if needed), then launches Standard_shell
+# or, equivalently:
+./Standard_shell
+```
 
-StandShell> date
-Sat Jun 22 21:30:26 IDT 2024
+### Clean
 
-StandShell> Math
-MathShell> Sqrt 100
+```sh
+make clean      # removes all built binaries and the runtime Commands/ directory
+```
+
+## Usage
+
+### StandardShell
+
+```sh
+StandShell > ls -l
+StandShell > ls | grep .c | wc -l
+StandShell > echo hello > out.txt
+StandShell > sleep 30 &
+[1] 24581
+StandShell > jobs
+[1]+ Running   sleep 30 &
+StandShell > Stats
+Total commands executed across all shells this session: 6
+StandShell > Math
+```
+
+| Command | Description |
+|---|---|
+| `<any command>` | Executed via `fork`/`execvp` (up to 6 arguments) |
+| `cmd1 \| cmd2 \| ...` | Pipeline, up to 4 stages |
+| `cmd < in`, `cmd > out`, `cmd >> out` | Redirection on the first/last pipeline stage |
+| `cmd &` | Run in the background |
+| `jobs` | List tracked background jobs |
+| `fg [job_id]` / `bg [job_id]` | Resume a job in the foreground/background |
+| `Stats` | Print the shared command counter |
+| `Math` / `Logic` / `String` | Switch to the corresponding sub-shell |
+| `exit` | Print a farewell message and remove every sub-shell's `Commands/` subdirectory |
+
+### MathShell
+
+```sh
+MathShell > Sqrt 100
 10
-MathShell> History
-1. Sqrt 100
-MathShell> Cls
-StandShell> exit
-Goodbye...
+MathShell > History
+	1. Sqrt 100
+MathShell > Cls
+StandShell >
 ```
 
----
+| Command | Description |
+|---|---|
+| `Sqrt n` | Square root of `n` |
+| `Power x y` | `x^y` |
+| `Solve a b c` | Roots of `ax² + bx + c = 0` |
+| `History` | Show commands run in this sub-shell |
+| `Cls` | Return to `StandShell` |
 
-## ⚙️ System Calls Used
-- `fork()`, `exec()`, `wait()`/`waitpid()`, `open()`, `read()`, `write()`
-- `pipe()`, `dup2()` for command pipelines
-- `signal()`/`sigaction()` for SIGINT/SIGTSTP/SIGCHLD handling
-- `setpgid()`, `tcsetpgrp()`, `killpg()` for job control (process groups + terminal control)
-- `shm_open()`, `mmap()`, `sem_open()` for the cross-process shared command counter
-- No usage of `system()` command
-- Efficient memory handling and process management
+### LogicShell
 
----
+| Command | Description |
+|---|---|
+| `DectoBin n` | Decimal to binary |
+| `DectoHex n` | Decimal to hexadecimal |
+| `Highbit n` | Count set bits (population count) |
+| `History` | Show commands run in this sub-shell |
+| `Cls` | Return to `StandShell` |
 
-## 📹 Demo Video
+### StringShell
 
-[![Watch the demo](https://img.youtube.com/vi/WD693Mx4NYQ/0.jpg)](https://www.youtube.com/watch?v=WD693Mx4NYQ)
+| Command | Description |
+|---|---|
+| `PrintFile filename` | Print a file's contents |
+| `Find filename string` | Print `WIN` if `string` occurs in the file |
+| `Replace "sentence" word pos` | Insert `word` into `sentence` at 1-based position `pos` |
+| `History` | Show commands run in this sub-shell |
+| `Cls` | Return to `StandShell` |
 
-[watch on YouTube](https://www.youtube.com/watch?v=WD693Mx4NYQ)
+## System Calls Used
 
----
+| Category | Calls |
+|---|---|
+| Process lifecycle | `fork()`, `execlp()`/`execvp()`, `wait()`/`waitpid()` |
+| File I/O | `open()`, `read()`, `write()`, `close()`, `lseek()` |
+| Pipelines | `pipe()`, `dup2()` |
+| Signals | `signal()`, `sigaction()` (`SIGINT`, `SIGTSTP`, `SIGCHLD`, `SIGTTOU`, `SIGTTIN`, `SIGCONT`) |
+| Job control | `setpgid()`, `tcsetpgrp()`, `killpg()` |
+| IPC | `shm_open()`, `mmap()`, `sem_open()`, `sem_wait()`/`sem_post()` |
 
-## 🤝 Contributors
-👨‍💻 **Yuval Kogan**  
-📧 [LinkedIn](https://www.linkedin.com/in/yuval-kogan) | [GitHub](https://github.com/KoganTheDev)
+## Known Limitations
 
----
+- Max 6 arguments per command, max 4 pipeline stages (`src/shell_config.h`)
+- Foreground pipeline waits don't block `SIGCHLD` during the wait — a simplification, not what a production shell does
+- `Math`/`Logic`/`String` are fixed-command REPLs; pipes and redirection are only available in `StandardShell`
 
-## 📜 License
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+## License
+
+Licensed under the [MIT License](LICENSE).
+
+## Author
+
+**Yuval Kogan** — [GitHub](https://github.com/KoganTheDev) · [LinkedIn](https://www.linkedin.com/in/yuval-kogan)
