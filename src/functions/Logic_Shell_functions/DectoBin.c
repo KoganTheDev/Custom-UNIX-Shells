@@ -10,20 +10,10 @@
 #define DIGITS_IN_INT 32
 
 /**
- * Summary:
- * Converts a given decimal number to its binary representation and prints the result.
- *
- * Details:
- * This program takes a decimal number as input and converts it to its binary representation.
- * It prints the binary representation of the number, removing any leading zeros.
- *
- * Arguments:
- * @param argc - (int): Number of arguments passed to the program. It should be 2.
- * @param argv - (char*[]): Array of arguments passed to the program. Should contain the decimal number as a string.
- *                   argv[1] should be the decimal number to convert.
- *
- * Returns:
- * @return - (int): The binary representation of the number in integer format.
+ * @brief Prints the binary representation of argv[1], with no leading zeros.
+ * @param argc Unused; argument count is validated by the calling sub-shell.
+ * @param argv argv[1] is the decimal number to convert.
+ * @return 0 on success.
  */
 int main(int argc, char* argv[]) {
     (void) argc; // argv[1] presence is guaranteed by the sub-shell's own arg-count check

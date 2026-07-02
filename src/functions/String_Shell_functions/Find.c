@@ -16,19 +16,10 @@
 void searchWordInFile(const char* word, const char* fileName);
 
 /**
- * Summary:
- * Main function entry point.
- *
- * Details:
- * Retrieves the file name and word to search from command-line arguments.
- * Calls searchWordInFile() function to perform the search operation.
- *
- * Arguments:
- * @param argc - (int): Number of command-line arguments.
- * @param argv - (char*[]): Array of command-line argument strings.
- *
- * Returns:
- * @return - (int): Exit status of the program.
+ * @brief Searches argv[1] for argv[2] and prints "WIN" or "Try Again".
+ * @param argc Unused; argument count is validated by the calling sub-shell.
+ * @param argv argv[1] is the file to search, argv[2] is the word to find.
+ * @return 0 on success.
  */
 int main(int argc, char* argv[]) {
     (void) argc; // argv[1]/argv[2] presence is guaranteed by the sub-shell's own arg-count check
@@ -41,20 +32,12 @@ int main(int argc, char* argv[]) {
 }
 
 /**
- * Summary:
- * Searches for a word in a specified file.
- *
- * Details:
- * Opens the file specified by fileName and searches for the occurrence of the word.
- * Prints "WIN" if the word is found in any line of the file; otherwise, prints "Try Again".
- * Handles errors related to file opening, reading, and closing using perror() and exits on failure.
- *
- * Arguments:
- * @param word - (const char*): The word to search for in the file.
- * @param fileName - (const char*): The name of the file to search in.
- *
- * Returns:
- * None.
+ * @brief Prints "WIN" if `word` occurs in `fileName`, otherwise "Try Again".
+ * @details Reads the file in fixed 255-byte chunks and searches each chunk
+ * independently; a match that straddles a chunk boundary will be missed.
+ * Exits with status 1 (via perror()) on an open/read failure.
+ * @param word The substring to search for.
+ * @param fileName Path to the file to search.
  */
 void searchWordInFile(const char* word, const char* fileName) {
     int fd = open(fileName, O_RDONLY);

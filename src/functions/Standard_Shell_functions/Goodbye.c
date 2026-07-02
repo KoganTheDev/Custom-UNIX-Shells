@@ -7,17 +7,8 @@
 #include <stdio.h>
 
 /**
- * Summary:
- * Main function entry point.
- *
- * Details:
- * This function prints "Goodbye." to the standard output.
- *
- * Arguments:
- * None.
- *
- * Returns:
- * None.
+ * @brief Prints the shell's farewell message.
+ * @return 0 on success.
  */
 int main(void){
     printf("Goodbye.\n");

@@ -9,23 +9,10 @@
 #include <stdlib.h>
 
 /**
- * Summary:
- * Calculates the power of a base number raised to a given exponent and prints the result.
- *
- * Details:
- * Converts the provided base and exponent from string arguments to double, 
- * computes the power using the math library's pow function, 
- * and prints the result rounded to zero decimal places.
- *
- * Arguments:
- * @param argc - (int): Number of arguments passed to the program. It should be 3.
- * @param argv - (char*[]): Array of arguments passed to the program. 
- *                   Should contain the base and power as strings.
- *                   argv[1] should be the base number, and argv[2] should be the exponent.
- *
- * Returns:
- * @return - (int): Returns 0 to indicate successful execution.
- *                  Prints the result of base raised to the power.
+ * @brief Prints argv[1]^argv[2], rounded to zero decimal places.
+ * @param argc Unused; argument count is validated by the calling sub-shell.
+ * @param argv argv[1] is the base, argv[2] is the exponent.
+ * @return 0 on success.
  */
 int main(int argc, char* argv[]) {
     (void) argc; // argv[1]/argv[2] presence is guaranteed by the sub-shell's own arg-count check

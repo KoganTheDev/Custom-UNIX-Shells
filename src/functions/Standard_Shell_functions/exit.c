@@ -7,25 +7,15 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <stdlib.h>
-#include <fcntl.h>
 #include <sys/wait.h>
 
 void emptyDirectory(void);
 
 /**
- * Summary:
- * Main function entry point.
- *
- * Details:
- * This function demonstrates process forking to execute a child process that runs the "Goodbye" function.
- * It also calls emptyDirectory() to remove specific files and directories related to commands.
- * Finally, it removes the "./Commands" directory after waiting for the child process to complete.
- *
- * Arguments:
- * None.
- *
- * Returns:
- * None.
+ * @brief Forks a child to print the goodbye message while the parent tears
+ * down every sub-shell's Commands/ subdirectory and the top-level Commands/
+ * directory itself.
+ * @return 0 on success.
  */
 int main(void){
     int pid;
@@ -50,25 +40,9 @@ int main(void){
 }
 
 /**
- * Summary:
- * Empties specific directories related to command storage.
- *
- * Details:
- * This function removes three command files and their respective directories:
- * - "./Commands/Math/Math_Commands.txt"
- * - "./Commands/Logic/Logic_Commands.txt"
- * - "./Commands/String/String_Commands.txt"
- *
- * It also removes the directories:
- * - "./Commands/Math"
- * - "./Commands/String"
- * - "./Commands/Logic"
- *
- * Arguments:
- * None.
- *
- * Returns:
- * None.
+ * @brief Removes each sub-shell's history file and its Commands/ subdirectory:
+ * Math_Commands.txt, Logic_Commands.txt, String_Commands.txt, and the
+ * Commands/Math, Commands/Logic, Commands/String directories.
  */
 void emptyDirectory(void){
     char* filename = "./Commands/Math/Math_Commands.txt";

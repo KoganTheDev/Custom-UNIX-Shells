@@ -11,23 +11,14 @@
 #include <math.h>
 
 /**
- * Summary:
- * Solves the quadratic equation ax^2 + bx + c = 0 and returns the solutions.
- *
- * Details:
- * Converts the provided coefficients a, b, and c from string arguments to double,
- * computes the discriminant, and finds the roots of the equation based on the value of the discriminant.
- * If the discriminant is negative, prints "No Sol!" indicating no real solutions.
- * If the discriminant is zero, prints the single solution.
- * If the discriminant is positive, forks a new process to print both solutions.
- *
- * Arguments:
- * @param argc - (int): Number of arguments passed to the program. It should be 4.
- * @param argv - (char*[]): Array of arguments passed to the program. Should contain the coefficients a, b, and c as strings.
- *                   argv[1] should be the coefficient a, argv[2] should be the coefficient b, and argv[3] should be the constant term c.
- *
- * Returns:
- * @return - (int): Returns 0 to indicate successful execution. Prints the solutions to the standard output.
+ * @brief Solves ax^2 + bx + c = 0 for argv[1..3] and prints the real root(s).
+ * @details Prints "No Sol!" for a negative discriminant, the single root for
+ * a zero discriminant, or forks a second process to print the two roots
+ * concurrently when the discriminant is positive - their print order isn't
+ * guaranteed, but both always appear.
+ * @param argc Unused; argument count is validated by the calling sub-shell.
+ * @param argv argv[1..3] are the coefficients a, b, c.
+ * @return 0 on success.
  */
 int main(int argc, char* argv[]) {
     (void) argc; // argv[1..3] presence is guaranteed by the sub-shell's own arg-count check

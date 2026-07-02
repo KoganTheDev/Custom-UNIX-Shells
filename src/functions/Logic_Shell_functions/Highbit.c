@@ -8,20 +8,12 @@
 #include <stdlib.h>
 
 /**
- * Summary:
- * Counts the number of set bits (1s) in the binary representation of an integer.
- *
- * Arguments:
- * @param argc - (int): Number of arguments passed to the program. It should be 2.
- * @param argv - (char*[]): Array of arguments passed to the program. Should contain the integer number as a string.
- *                   argv[1] should be the number whose bits are to be counted.
- *
- * Returns:
- * @return - (int): The count of set bits in the binary representation.
- *
- * Details:
- * The function iterates through each bit of the input number, checking if it's set (1).
- * It uses bitwise operations to shift and count set bits until the number is zero.
+ * @brief Prints the population count (number of set bits) of argv[1].
+ * @param argc Unused; argument count is validated by the calling sub-shell.
+ * @param argv argv[1] is the decimal number whose bits are counted.
+ * @return The bit count itself (not the usual 0-for-success convention) -
+ * harmless here since the caller never inspects the exit status, but worth
+ * knowing before reusing this exit code for anything.
  */
 int main(int argc, char* argv[]){
     (void) argc; // argv[1] presence is guaranteed by the sub-shell's own arg-count check

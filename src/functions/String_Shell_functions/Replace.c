@@ -11,19 +11,12 @@
 void replaceWordInSentence(char* sentence, char* word, int location);
 
 /**
- * Summary:
- * Main function entry point.
- *
- * Details:
- * Validates command-line arguments, calls replaceWordInSentence() to modify the sentence,
- * and prints the modified sentence to standard output.
- *
- * Arguments:
- * @param argc - (int): Number of command-line arguments.
- * @param argv - (char*[]): Array of command-line argument strings.
- *
- * Returns:
- * @return - (int): Exit status of the program. Returns 0 for successful execution.
+ * @brief Inserts argv[2] into argv[1] at the 1-based position argv[3] and
+ * prints the result.
+ * @param argc Number of command-line arguments; must be 4.
+ * @param argv argv[1] is the sentence, argv[2] the word to insert, argv[3]
+ * the 1-based insertion position.
+ * @return 0 on success; 1 on a usage or allocation error.
  */
 int main(int argc, char* argv[]) {
     if (argc != 4) {
@@ -59,21 +52,13 @@ int main(int argc, char* argv[]) {
 }
 
 /**
- * Summary:
- * Replaces a word in a sentence at a specified location.
- *
- * Details:
- * Modifies the input sentence by replacing a substring starting at the specified location with the given word.
- * Ensures the location is within the bounds of the sentence length and performs the replacement in-place.
- * If the location is invalid, prints an error message and exits.
- *
- * Arguments:
- * @param sentence - (char*): The sentence in which the word will be replaced.
- * @param word - (char*): The word to replace in the sentence.
- * @param location - (int): The 1-based index indicating the position in the sentence to start replacing.
- *
- * Returns:
- * None.
+ * @brief Overwrites `sentence` in place, inserting `word` starting at the
+ * 1-based `location`. Caller must ensure `sentence`'s buffer is large enough
+ * (see main()) since this can extend past the original string's length.
+ * @param sentence Buffer to modify in place.
+ * @param word The word to insert.
+ * @param location 1-based index into `sentence` where `word` starts.
+ * Exits with status 1 if out of range ([1, strlen(sentence)]).
  */
 void replaceWordInSentence(char* sentence, char* word, int location) {
     int sentenceLength = strlen(sentence);

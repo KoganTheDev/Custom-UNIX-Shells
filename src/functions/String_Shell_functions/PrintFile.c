@@ -16,18 +16,10 @@
 void printFileContent(const char* file_name);
 
 /**
- * Summary:
- * Main function entry point.
- *
- * Details:
- * Takes a filename as a command-line argument and calls printFileContent() to print its content.
- *
- * Arguments:
- * @param argc - (int): Number of command-line arguments.
- * @param argv - (char*[]): Array of command-line argument strings.
- *
- * Returns:
- * @return - (int): Exit status of the program. Returns 0 for successful execution.
+ * @brief Prints the contents of argv[1] to standard output.
+ * @param argc Unused; argument count is validated by the calling sub-shell.
+ * @param argv argv[1] is the file to print.
+ * @return 0 on success.
  */
 int main(int argc, char* argv[]) {
     (void) argc; // argv[1] presence is guaranteed by the sub-shell's own arg-count check
@@ -41,18 +33,9 @@ int main(int argc, char* argv[]) {
 }
 
 /**
- * Summary:
- * Prints the content of a file to the standard output.
- *
- * Details:
- * Opens the specified file for reading, reads its content in chunks, and prints each chunk to the standard output.
- * Handles errors related to file opening, reading, and closing using perror to print error messages.
- *
- * Arguments:
- * @param file_name - (const char*): Name of the file to be read and printed.
- *
- * Returns:
- * None.
+ * @brief Streams `file_name`'s contents to standard output in 1023-byte chunks.
+ * @details Exits with status 1 (via perror()) on an open/read/close failure.
+ * @param file_name Path to the file to print.
  */
 void printFileContent(const char* file_name) {
     char buffer[BUFFER_SIZE];

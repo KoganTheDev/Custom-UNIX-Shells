@@ -8,21 +8,11 @@
 #include <stdlib.h>
 #include <math.h>
 /**
- * Summary:
- * Calculates the square root of a given number and prints it.
- *
- * Details:
- * Converts the provided string argument to a double and checks if the number is negative.
- * If the number is negative, prints "Math Error!" and exits.
- * If the number is non-negative, calculates and prints the square root of the number.
- *
- * Arguments:
- * @param argc - (int): Number of arguments passed to the program. It should be 2.
- * @param argv - (char*[]): Array of arguments passed to the program. Should contain the number for which square root is to be calculated as a string.
- *                   argv[1] should be the number for which square root is to be calculated.
- *
- * Returns:
- * @return - (int): 0 to indicate successful execution.
+ * @brief Prints the square root of argv[1].
+ * @param argc Unused; argument count is validated by the calling sub-shell.
+ * @param argv argv[1] is the number to take the square root of.
+ * @return 0 on success; exits with status 1 (printing "Math Error!") for a
+ * negative input.
  */
 int main(int argc, char* argv[]) {
     (void) argc; // argv[1] presence is guaranteed by the sub-shell's own arg-count check

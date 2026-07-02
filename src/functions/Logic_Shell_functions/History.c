@@ -13,20 +13,11 @@
 #define BUFFER_SIZE 256
 
 /**
- * Summary:
- * Reads and displays all commands run by the user in Logic_Shell.
- *
- * Details:
- * Opens a file containing the history of commands and outputs each command to the terminal.
- * If opening or reading the file fails, the program exits with an error message.
- *
- * Arguments:
- * None.
- *
- * Returns:
- * None.
+ * @brief Prints every command previously logged by LogicShell, numbered.
+ * @return 0 on success; exits with status 1 if the history file can't be
+ * opened or read.
  */
-int main() {
+int main(void) {
     int historyFile, bytesRead;
     char buffer[BUFFER_SIZE];
     int i = 1;
