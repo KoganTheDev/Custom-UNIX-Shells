@@ -41,7 +41,11 @@ A UNIX shell implemented from scratch in C, built directly on Linux system calls
 
 ## Architecture
 
-The dispatch loop is documented as a UML Activity Diagram in [`docs/standard-shell-activity-diagram.drawio`](docs/standard-shell-activity-diagram.drawio) (open with [draw.io](https://app.diagrams.net/) / the VS Code draw.io extension) — it traces the full control flow from startup through the read-eval-print loop to each builtin dispatch path.
+The dispatch loop is documented as a UML Activity Diagram, tracing the full control flow from startup through the read-eval-print loop to each builtin dispatch path:
+
+![Standard Shell activity diagram](docs/standard-shell-activity-diagram.jpg)
+
+The editable source is [`docs/standard-shell-activity-diagram.drawio`](docs/standard-shell-activity-diagram.drawio) (open with [draw.io](https://app.diagrams.net/) / the VS Code draw.io extension).
 
 At a source level, the project is split into focused modules rather than one large file:
 
