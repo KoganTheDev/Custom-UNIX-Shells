@@ -1,10 +1,16 @@
+/**
+ * @file exit.c
+ * @brief Standalone executable backing the Standard shell's "exit" command:
+ * prints a goodbye message and tears down every sub-shell's Commands/ subdirectory.
+ */
+
 #include <stdio.h>
 #include <unistd.h>
 #include <stdlib.h>
 #include <fcntl.h>
 #include <sys/wait.h>
 
-void emptyDirectory();
+void emptyDirectory(void);
 
 /**
  * Summary:
@@ -21,9 +27,9 @@ void emptyDirectory();
  * Returns:
  * None.
  */
-void main(){
+int main(void){
     int pid;
-    
+
     // Fork a child process
     if ((pid = fork()) < 0){
         printf("Forking in the function \"exit\" has failed.");
@@ -40,6 +46,7 @@ void main(){
         printf("Commands dir removed.\n");
         wait(NULL); // Wait for child process to finish
     }
+    return 0;
 }
 
 /**
@@ -63,7 +70,7 @@ void main(){
  * Returns:
  * None.
  */
-void emptyDirectory(){
+void emptyDirectory(void){
     char* filename = "./Commands/Math/Math_Commands.txt";
     char* filename2 = "./Commands/Logic/Logic_Commands.txt";
     char* filename3 = "./Commands/String/String_Commands.txt";

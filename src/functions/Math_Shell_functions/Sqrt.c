@@ -1,3 +1,9 @@
+/**
+ * @file Sqrt.c
+ * @brief Standalone executable backing the Math sub-shell's "Sqrt"
+ * command: computes the square root of a decimal argument.
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
@@ -19,6 +25,7 @@
  * @return - (int): 0 to indicate successful execution.
  */
 int main(int argc, char* argv[]) {
+    (void) argc; // argv[1] presence is guaranteed by the sub-shell's own arg-count check
     double number = atof(argv[1]); // The number for which square root is to be calculated
 
     if (number < 0) {

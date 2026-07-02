@@ -1,9 +1,9 @@
-/*
-TODO:
--> Gets one parameter
--> returns the Hexadecimal value of the given decimal number.
+/**
+ * @file DectoHex.c
+ * @brief Standalone executable backing the Logic sub-shell's "DectoHex"
+ * command: converts a decimal argument to its hexadecimal string representation.
+ */
 
-*/
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -25,9 +25,10 @@ TODO:
  * @return - (int): 0 to indicate a successful run.
  */
 int main(int argc, char* argv[]){
+    (void) argc; // argv[1] presence is guaranteed by the sub-shell's own arg-count check
     int number = atoi(argv[1]);
 
-    printf("%X\n", number); // Prints in hexa format.
+    printf("%X\n", (unsigned int) number); // %X expects unsigned int.
 
     return 0; // When the function succeeds.
 }

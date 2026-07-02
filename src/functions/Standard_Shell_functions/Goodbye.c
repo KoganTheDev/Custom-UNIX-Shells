@@ -1,3 +1,9 @@
+/**
+ * @file Goodbye.c
+ * @brief Standalone executable forked by exit.c to print the shell's
+ * farewell message.
+ */
+
 #include <stdio.h>
 
 /**
@@ -13,6 +19,7 @@
  * Returns:
  * None.
  */
-void main(){
+int main(void){
     printf("Goodbye.\n");
+    return 0;
 }

@@ -1,3 +1,9 @@
+/**
+ * @file Power.c
+ * @brief Standalone executable backing the Math sub-shell's "Power"
+ * command: computes base^exponent for two decimal arguments.
+ */
+
 #include <stdio.h>
 #include <math.h>
 #include <stdlib.h>
@@ -21,7 +27,8 @@
  * @return - (int): Returns 0 to indicate successful execution.
  *                  Prints the result of base raised to the power.
  */
-double main(int argc, char* argv[]) {
+int main(int argc, char* argv[]) {
+    (void) argc; // argv[1]/argv[2] presence is guaranteed by the sub-shell's own arg-count check
     double base = atof(argv[1]);    // Convert the first argument to double (base)
     double power = atof(argv[2]);   // Convert the second argument to double (power)
     double result = pow(base, power);   // Calculate base^power

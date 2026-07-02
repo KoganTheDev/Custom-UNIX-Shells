@@ -1,3 +1,9 @@
+/**
+ * @file PrintFile.c
+ * @brief Standalone executable backing the String sub-shell's "PrintFile"
+ * command: prints a file's contents to standard output.
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <fcntl.h>
@@ -24,6 +30,7 @@ void printFileContent(const char* file_name);
  * @return - (int): Exit status of the program. Returns 0 for successful execution.
  */
 int main(int argc, char* argv[]) {
+    (void) argc; // argv[1] presence is guaranteed by the sub-shell's own arg-count check
     char* file_name = argv[1];
 
     // Print the content of the specified file

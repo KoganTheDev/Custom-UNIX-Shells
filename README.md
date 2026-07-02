@@ -12,18 +12,25 @@ This project is a **custom shell environment** implemented in **C on UNIX (Ubunt
 ✅ Saves command history for each shell  
 ✅ Graceful error handling and validation  
 ✅ Modular and structured code design  
+✅ Pipes (`|`) and I/O redirection (`<`, `>`, `>>`) between arbitrary commands  
+✅ Job control: background jobs (`&`), `jobs`/`fg`/`bg`, Ctrl+C/Ctrl+Z handled per-job instead of killing the shell  
+✅ Cross-process command counter via POSIX shared memory + a named semaphore (`Stats` command)  
 
 ---
 
 ## 📂 Project Structure
 ```
-📁 CustomShellProject
-│-- 📜 Standard_shell.c    # Main shell handling standard commands
-│-- 📜 Math_shell.c        # Shell for mathematical operations
-│-- 📜 Logic_shell.c       # Shell for logic-based operations
-│-- 📜 String_shell.c      # Shell for string manipulations
-│-- 📜 <other_command>.c   # Additional commands (if required)
-│-- 📜 Sys_shell.sh        # Compilation and execution script
+📁 src
+│-- 📜 Standard_shell.c    # Main shell: REPL + builtin dispatch (exit/Math/Logic/String/jobs/fg/bg/Stats)
+│-- 📜 jobs.c / jobs.h     # Job control: process groups, terminal control, SIGCHLD reaping, jobs/fg/bg
+│-- 📜 pipeline.c / pipeline.h  # Pipe/redirection/background execution for regular commands
+│-- 📜 shell_config.h      # Shared compile-time limits (input size, max args, max pipeline stages)
+│-- 📁 common/             # Code shared across binaries
+│   │-- 📜 subshell_common.c/.h  # Table-driven REPL engine used by Math/Logic/String
+│   │-- 📜 ipc_stats.c/.h        # Shared-memory command counter (POSIX shm + semaphore)
+│-- 📁 functions/          # One executable per builtin/sub-shell command
+│-- 📜 Makefile            # Build rules for all ~18 binaries
+│-- 📜 Sys_shell.sh        # Thin wrapper: `make && ./Standard_shell`
 │-- 📜 README.md           # Project documentation
 ```
 
@@ -33,12 +40,13 @@ This project is a **custom shell environment** implemented in **C on UNIX (Ubunt
 ### 1️⃣ Clone the repository
 ```sh
 git clone <repository_url>
-cd CustomShellProject
+cd Custom-UNIX-Shells/src
 ```
 ### 2️⃣ Compile the project
 ```sh
-chmod +x Sys_shell.sh
-./Sys_shell.sh
+make        # builds every binary
+make run    # builds, then launches Standard_shell
+make clean  # removes all built binaries and the runtime Commands/ dir
 ```
 ### 3️⃣ Start using the shell
 Once executed, the shell environment is ready. You can navigate through different shells as follows:
@@ -54,7 +62,12 @@ StandShell> exit      # Exit and delete Commands directory
 
 ## 🖥️ Available Shells & Commands
 ### 1️⃣ **StandardShell (`StandShell>`)**
-- Execute **any valid Linux command** (up to 3 parameters)
+- Execute **any valid Linux command** (up to 6 parameters)
+- Pipelines: `ls | grep .c | wc -l` (up to 4 stages)
+- Redirection: `sort < names.txt > sorted.txt`, `echo hi >> log.txt`
+- Background jobs: `sleep 30 &` → `[1] 12345`
+- Job control: `jobs`, `fg [job_id]`, `bg [job_id]` - Ctrl+C kills, Ctrl+Z stops the foreground job without killing the shell
+- `Stats` - total commands executed across every shell in this session (Standard + Math + Logic + String), tracked via shared memory
 - Example: `ls -l`, `mkdir testDir`, `grep -c word file.txt`
 - Exit: `exit` (Deletes `Commands/` directory)
 
@@ -107,7 +120,11 @@ Goodbye...
 ---
 
 ## ⚙️ System Calls Used
-- `fork()`, `exec()`, `wait()`, `open()`, `read()`, `write()`
+- `fork()`, `exec()`, `wait()`/`waitpid()`, `open()`, `read()`, `write()`
+- `pipe()`, `dup2()` for command pipelines
+- `signal()`/`sigaction()` for SIGINT/SIGTSTP/SIGCHLD handling
+- `setpgid()`, `tcsetpgrp()`, `killpg()` for job control (process groups + terminal control)
+- `shm_open()`, `mmap()`, `sem_open()` for the cross-process shared command counter
 - No usage of `system()` command
 - Efficient memory handling and process management
 

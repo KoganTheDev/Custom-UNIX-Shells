@@ -1,3 +1,9 @@
+/**
+ * @file DectoBin.c
+ * @brief Standalone executable backing the Logic sub-shell's "DectoBin"
+ * command: converts a decimal argument to its binary string representation.
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -20,6 +26,7 @@
  * @return - (int): The binary representation of the number in integer format.
  */
 int main(int argc, char* argv[]) {
+    (void) argc; // argv[1] presence is guaranteed by the sub-shell's own arg-count check
     int number = atoi(argv[1]);
     unsigned int numberCopy = (unsigned int)number;
     int dectoBinString[DIGITS_IN_INT] = {0};

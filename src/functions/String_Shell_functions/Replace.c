@@ -1,3 +1,9 @@
+/**
+ * @file Replace.c
+ * @brief Standalone executable backing the String sub-shell's "Replace"
+ * command: inserts a word into a sentence at a given 1-based position.
+ */
+
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -25,13 +31,30 @@ int main(int argc, char* argv[]) {
         return 1;
     }
 
-    char* sentence = argv[1];
     char* word = argv[2];
     int location = atoi(argv[3]);
+
+    // Allocate a buffer large enough to hold the sentence even if the
+    // replacement word extends past the original sentence's end, since
+    // modifying argv[1] in-place would overflow its buffer.
+    int sentenceLength = strlen(argv[1]);
+    int wordLength = strlen(word);
+    int neededSize = sentenceLength;
+    if (location - 1 + wordLength > neededSize) {
+        neededSize = location - 1 + wordLength;
+    }
+
+    char* sentence = (char*) malloc(neededSize + 1);
+    if (sentence == NULL) {
+        fprintf(stderr, "Memory allocation failed.\n");
+        return 1;
+    }
+    strcpy(sentence, argv[1]);
 
     replaceWordInSentence(sentence, word, location);
 
     printf("%s\n", sentence); // Print the modified sentence
+    free(sentence);
     return 0;
 }
 
@@ -68,8 +91,11 @@ void replaceWordInSentence(char* sentence, char* word, int location) {
     // Calculate the ending index of the word to replace
     char* endReplace = startReplace + wordLength;
 
-    // Calculate the remaining part of the sentence after the replaced word
-    char* remaining = endReplace;
+    // Calculate the remaining part of the sentence after the replaced word.
+    // If the replacement word extends past the original sentence's end,
+    // there is no remaining text to preserve.
+    char* sentenceEnd = sentence + sentenceLength;
+    char* remaining = (endReplace < sentenceEnd) ? endReplace : sentenceEnd;
 
     // Perform the replacement in-place
     strncpy(startReplace, word, wordLength);

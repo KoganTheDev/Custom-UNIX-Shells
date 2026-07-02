@@ -1,3 +1,9 @@
+/**
+ * @file Highbit.c
+ * @brief Standalone executable backing the Logic sub-shell's "Highbit"
+ * command: counts the number of set bits (population count) in a decimal argument.
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -18,6 +24,7 @@
  * It uses bitwise operations to shift and count set bits until the number is zero.
  */
 int main(int argc, char* argv[]){
+    (void) argc; // argv[1] presence is guaranteed by the sub-shell's own arg-count check
     int number = atoi(argv[1]);
     int count = 0;
 

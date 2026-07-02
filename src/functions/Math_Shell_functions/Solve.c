@@ -1,3 +1,10 @@
+/**
+ * @file Solve.c
+ * @brief Standalone executable backing the Math sub-shell's "Solve"
+ * command: solves the quadratic equation ax^2 + bx + c = 0 for three
+ * decimal coefficient arguments.
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -22,7 +29,8 @@
  * Returns:
  * @return - (int): Returns 0 to indicate successful execution. Prints the solutions to the standard output.
  */
-double main(int argc, char* argv[]) {
+int main(int argc, char* argv[]) {
+    (void) argc; // argv[1..3] presence is guaranteed by the sub-shell's own arg-count check
     int pid;
     double firstSolution, secondSolution;
 

@@ -1,3 +1,9 @@
+/**
+ * @file History.c
+ * @brief Standalone executable backing the String sub-shell's "History"
+ * command: prints every command previously logged to String_Commands.txt.
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>

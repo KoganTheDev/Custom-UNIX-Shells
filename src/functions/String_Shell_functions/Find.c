@@ -1,3 +1,9 @@
+/**
+ * @file Find.c
+ * @brief Standalone executable backing the String sub-shell's "Find"
+ * command: searches a file for a substring, printing "WIN" if found.
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -25,6 +31,7 @@ void searchWordInFile(const char* word, const char* fileName);
  * @return - (int): Exit status of the program.
  */
 int main(int argc, char* argv[]) {
+    (void) argc; // argv[1]/argv[2] presence is guaranteed by the sub-shell's own arg-count check
     char* fileName = argv[1];
     char* word = argv[2];
 
