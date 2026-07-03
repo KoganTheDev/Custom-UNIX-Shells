@@ -107,6 +107,9 @@ void runSubshellRepl(const SubshellConfig* config) {
 
     while (1) {
         printf("%s", config->promptLabel);
+        fflush(stdout); // the prompt has no trailing '\n', so line-buffering
+                        // alone won't flush it - force it out before fgets()
+                        // blocks, or the prompt may sit invisible until later.
 
         if (fgets(userInput, SUBSHELL_INPUT_SIZE, stdin) == NULL) {
             printf("fgets in \"%s\" has failed to grab input.\n", config->shellNameForError);

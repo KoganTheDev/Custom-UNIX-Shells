@@ -194,6 +194,7 @@ StandShell >
 - Max 6 arguments per command, max 4 pipeline stages (`src/shell_config.h`)
 - Foreground pipeline waits don't block `SIGCHLD` during the wait — a simplification, not what a production shell does
 - `Math`/`Logic`/`String` are fixed-command REPLs; pipes and redirection are only available in `StandardShell`
+- **`Ctrl+C`/`Ctrl+Z` require a real controlling terminal.** If the shell isn't the session leader of an actual TTY — some `docker run` configurations, CI runners, or other nested-terminal setups — `tcsetpgrp()` fails and the shell prints a one-time warning at startup. In that case, foreground jobs won't respond to `Ctrl+C`/`Ctrl+Z`, though `&`, `jobs`, `fg`, and `bg` still work normally. Running with a plain `docker run -it` on a native Linux host (or under WSL2 directly, without Docker in between) gives a full controlling terminal and full signal-based job control.
 
 ## License
 

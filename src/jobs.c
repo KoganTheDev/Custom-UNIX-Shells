@@ -17,6 +17,16 @@ static Job jobsTable[JOBS_MAX_JOBS];
 static int jobCount = 0;
 static int nextJobId = 1;
 
+// Whether this process actually owns a controlling terminal capable of
+// foreground/background process-group handoff. Some environments (a `docker
+// run` session without a fully set-up controlling terminal, for instance)
+// give the shell a pipe or a terminal it doesn't have session ownership of;
+// tcsetpgrp() then fails and Ctrl+C/Ctrl+Z silently never reach the job,
+// since the kernel keeps delivering them to whatever pgrp still "owns" the
+// terminal. Once detected, skip further tcsetpgrp() calls rather than
+// repeat a syscall already known to fail.
+static int hasTerminalControl = 1;
+
 pid_t shellPgid;
 
 /**
@@ -111,7 +121,14 @@ static void sigchldHandler(int sig) {
 void jobsInit(void) {
     shellPgid = getpid();
     setpgid(shellPgid, shellPgid);
-    tcsetpgrp(STDIN_FILENO, shellPgid);
+
+    if (tcsetpgrp(STDIN_FILENO, shellPgid) == -1) {
+        hasTerminalControl = 0;
+        fprintf(stderr,
+            "Warning: no controlling terminal available - Ctrl+C/Ctrl+Z "
+            "will not stop foreground jobs in this environment. Background "
+            "jobs (&), \"jobs\", \"fg\", and \"bg\" are unaffected.\n");
+    }
 
     // Ignored so Ctrl+C/Ctrl+Z stop the foreground job (which keeps the
     // default disposition) instead of the shell itself. SIGTTOU/SIGTTIN are
@@ -152,7 +169,7 @@ void jobsMarkBackground(Job* job) {
 }
 
 void jobsWaitForeground(Job* job) {
-    tcsetpgrp(STDIN_FILENO, job->pgid);
+    if (hasTerminalControl) tcsetpgrp(STDIN_FILENO, job->pgid);
 
     int status;
     while (job->state == JOB_RUNNING &&
@@ -166,7 +183,7 @@ void jobsWaitForeground(Job* job) {
         }
     }
 
-    tcsetpgrp(STDIN_FILENO, shellPgid);
+    if (hasTerminalControl) tcsetpgrp(STDIN_FILENO, shellPgid);
 
     if (job->state == JOB_DONE) removeJob(job);
 }

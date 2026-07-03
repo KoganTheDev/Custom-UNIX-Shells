@@ -82,6 +82,9 @@ int main(int argc, char* argv[]) {
     while (1) {
         jobsReportFinished();
         printf("StandardShell > ");
+        fflush(stdout); // the prompt has no trailing '\n', so line-buffering
+                        // alone won't flush it - force it out before fgets()
+                        // blocks, or the prompt may sit invisible until later.
 
         if (fgets(userInput, SIZE_OF_INPUT, stdin) == NULL) {
             printf("fgets in \"Standard_shell\" has failed to grab input.\n");

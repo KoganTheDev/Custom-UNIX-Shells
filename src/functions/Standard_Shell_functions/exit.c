@@ -22,7 +22,7 @@ int main(void){
 
     // Fork a child process
     if ((pid = fork()) < 0){
-        printf("Forking in the function \"exit\" has failed.");
+        printf("Forking in the function \"exit\" has failed.\n");
         exit(1);
     }
     if (pid == 0){
