@@ -21,7 +21,7 @@ A UNIX shell implemented from scratch in C, built directly on Linux system calls
 ## Features
 
 **Process management**
-- Any external Linux command, executed via `fork()`/`execvp()` — no `system()`
+- Any external Linux command, executed via `fork()`/`execvp()` - no `system()`
 - Three specialized sub-shells (`Math`, `Logic`, `String`) launched as child processes, sharing a single command counter with the parent
 
 **Pipelines & redirection**
@@ -31,7 +31,7 @@ A UNIX shell implemented from scratch in C, built directly on Linux system calls
 **Job control**
 - Background execution: `sleep 30 &` → `[1] 12345`
 - `jobs`, `fg [job_id]`, `bg [job_id]` builtins
-- Real process-group-based signal handling: `Ctrl+C` kills the foreground job, `Ctrl+Z` stops it — neither kills the shell itself
+- Real process-group-based signal handling: `Ctrl+C` kills the foreground job, `Ctrl+Z` stops it - neither kills the shell itself
 
 **Inter-process communication**
 - A command counter (`Stats`) shared across every shell process in the session via POSIX shared memory (`shm_open`/`mmap`), synchronized with a named semaphore
@@ -57,7 +57,7 @@ At a source level, the project is split into focused modules rather than one lar
 | `common/subshell_common.c` / `.h` | Table-driven REPL engine shared by `Math`/`Logic`/`String` |
 | `common/ipc_stats.c` / `.h` | The shared-memory command counter |
 
-Each sub-shell (`Math`, `Logic`, `String`) declares only its own command table — name, executable path, required argument count, usage message — and hands it to the shared REPL engine, instead of duplicating the read/parse/dispatch/log loop three times.
+Each sub-shell (`Math`, `Logic`, `String`) declares only its own command table - name, executable path, required argument count, usage message - and hands it to the shared REPL engine, instead of duplicating the read/parse/dispatch/log loop three times.
 
 ## Project Structure
 
@@ -85,7 +85,7 @@ docs/
 
 ### Prerequisites
 
-- A Linux environment (or a Linux container — this codebase relies on POSIX/glibc extensions such as `killpg()`, `tcsetpgrp()`, and `shm_open()` that aren't available on Windows)
+- A Linux environment (or a Linux container - this codebase relies on POSIX/glibc extensions such as `killpg()`, `tcsetpgrp()`, and `shm_open()` that aren't available on Windows)
 - `gcc` and `make`
 
 ### Build
@@ -192,9 +192,9 @@ StandShell >
 ## Known Limitations
 
 - Max 6 arguments per command, max 4 pipeline stages (`src/shell_config.h`)
-- Foreground pipeline waits don't block `SIGCHLD` during the wait — a simplification, not what a production shell does
+- Foreground pipeline waits don't block `SIGCHLD` during the wait - a simplification, not what a production shell does
 - `Math`/`Logic`/`String` are fixed-command REPLs; pipes and redirection are only available in `StandardShell`
-- **`Ctrl+C`/`Ctrl+Z` require a real controlling terminal.** If the shell isn't the session leader of an actual TTY — some `docker run` configurations, CI runners, or other nested-terminal setups — `tcsetpgrp()` fails and the shell prints a one-time warning at startup. In that case, foreground jobs won't respond to `Ctrl+C`/`Ctrl+Z`, though `&`, `jobs`, `fg`, and `bg` still work normally. Running with a plain `docker run -it` on a native Linux host (or under WSL2 directly, without Docker in between) gives a full controlling terminal and full signal-based job control.
+- **`Ctrl+C`/`Ctrl+Z` require a real controlling terminal.** If the shell isn't the session leader of an actual TTY - some `docker run` configurations, CI runners, or other nested-terminal setups - `tcsetpgrp()` fails and the shell prints a one-time warning at startup. In that case, foreground jobs won't respond to `Ctrl+C`/`Ctrl+Z`, though `&`, `jobs`, `fg`, and `bg` still work normally. Running with a plain `docker run -it` on a native Linux host (or under WSL2 directly, without Docker in between) gives a full controlling terminal and full signal-based job control.
 
 ## License
 
@@ -202,4 +202,4 @@ Licensed under the [MIT License](LICENSE).
 
 ## Author
 
-**Yuval Kogan** — [GitHub](https://github.com/KoganTheDev) · [LinkedIn](https://www.linkedin.com/in/yuval-kogan)
+**Yuval Kogan** - [GitHub](https://github.com/KoganTheDev) · [LinkedIn](https://www.linkedin.com/in/yuval-kogan)
